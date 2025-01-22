@@ -3,7 +3,7 @@ Main Driver File.
 Responsible for handling user input and displaying the current GameStaye object.
 """
 import pygame as p
-import ChessEngine
+import ChessEngine, ChessAI
 
 width = height = 512
 dimension = 8
@@ -38,14 +38,18 @@ def main():
     squareSelected = () # Keep track of last click (tuple: (row, col))
     playerClicks = [] # Keep track of player clicks (two tuples: [(6, 4), (4,4)])
     gameOver = False
+    playerOne = False # If True then Human is playing white otherwise it is AI
+    playerTwo = False # Same but for Black
 
     while running:
+        humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
+
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             # Mouse Handler
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver:
+                if not gameOver and humanTurn:
                     location = p.mouse.get_pos(); # X,Y Location of mouse
                     col = location[0] // squareSize # / by int64 gives whole number
                     row = location[1] // squareSize
@@ -58,8 +62,6 @@ def main():
 
                     if len(playerClicks) == 2:
                         move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
-                        if move.getChessNotation() != None:
-                            print(move.getChessNotation())
                         for i in range(len(validMoves)):
                             if move == validMoves[i]:
                                 gs.makeMove(validMoves[i])
@@ -82,6 +84,13 @@ def main():
                     playerClicks = []
                     moveMade = False
                     animate = False
+
+        # AI move finder
+        if not gameOver and not humanTurn:
+            AIMove = ChessAI.findRandomMove(validMoves)
+            gs.makeMove(AIMove)
+            moveMade = True
+            animate = True
 
         if moveMade:
             if animate:

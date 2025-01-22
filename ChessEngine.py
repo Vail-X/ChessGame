@@ -61,18 +61,18 @@ class GameState():
 
         # Pawn Promotion
         if move.pawnPromotion:
-            promotedPiece = input("Promote to Q, R, B, or N: ")
+            global promotedPiece
+            promotedPiece= input("Promote to Q, R, B, or N: ")
             self.board[move.endRow][move.endCol] = move.pieceMoved[0] + promotedPiece
+
 
         # Update enPassantPossible only if pieceMoved is pawn and it moved by 2 squares and left or right have allyColor
         if (move.pieceMoved[1] == 'P' and abs(move.startRow - move.endRow) == 2 and
-                (self.board[move.endRow][move.endCol - 1] == self.allyColor + 'P' or self.board[move.endRow][move.endCol + 1] == self.allyColor + 'P')):
+                ((move.endCol > 0 and self.board[move.endRow][move.endCol - 1] == self.allyColor + 'P') or
+                 (move.endCol < 7 and self.board[move.endRow][move.endCol + 1] == self.allyColor + 'P'))):
             self.enPassantPossible = ((move.startRow + move.endRow) // 2, move.endCol) # Start col also works
             self.enPassantLog = [self.enPassantPossible]
-            print("Enpassant should be here: ", self.enPassantPossible)
-            print(self.enPassantLog)
         else: # Making sure if any other move it removes the possible enPassant
-            # print("no more enpassant")
             self.enPassantPossible = ()
 
         # Enpassant, it removes the pawn on the same starting row but to the end row
@@ -90,9 +90,9 @@ class GameState():
 
         # Update castling rights when a king or rook moves
         self.updateCastleRights(move)
-        # print("Castle rights: ", self.castlingwKs, self.castlingbKs, self.castlingwQs, self.castlingbQs)
+        print(move.getChessNotation())
 
-    # Undo last move
+     # Undo last move
     def undoMove(self):
         if len(self.moveLog) != 0:
             move = self.moveLog.pop()
@@ -125,8 +125,6 @@ class GameState():
             self.castlingwQs = castleRights.wQs
             self.castlingbQs = castleRights.bQs
 
-            # print("Castling rights restored: ", self.castlingwKs, self.castlingbKs, self.castlingwQs, self.castlingbQs)
-
             # Undo castle move
             if move.castleMove:
                 if move.endCol - move.startCol == 2:  # KingSide castle
@@ -150,9 +148,7 @@ class GameState():
             kingRow = self.blackKingLocation[0]
             kingCol = self.blackKingLocation[1]
         if self.inCheck:
-            print("I am in check")
             if len(self.checks) == 1: # 1 Check, block or move king
-                print("Only 1 check")
                 moves = self.getAllPossibleMoves()
 
                 check = self.checks[0]
@@ -165,7 +161,6 @@ class GameState():
                 # If knight, must capture or move
                 if pieceChecking[1] == 'N':
                     validSquares = [(checkRow, checkCol)]
-                    print(validSquares, "A Knight is attack here")
                 else:
                     for i in range(1, 8): #Give valid square where a piece need to move to
                         validSquare = (kingRow + check[2] * i, kingCol + check[3] * i)
@@ -209,7 +204,6 @@ class GameState():
         pinDirection = ()
         for i in range(len(self.pins) - 1, -1, -1):
             if self.pins[i][0] == r and self.pins[i][1] == c:
-                print("I AM A PAWN BEING PINNED")
                 piecePinned = True
                 pinDirection = (self.pins[i][2], self.pins[i][3])
                 self.pins.remove(self.pins[i])
@@ -243,7 +237,6 @@ class GameState():
         pinDirection = ()
         for i in range(len(self.pins) - 1, -1, -1):
             if self.pins[i][0] == r and self.pins[i][1] == c:
-                print("I AM A BISHOP BEING PINNED")
                 piecePinned = True
                 pinDirection = (self.pins[i][2], self.pins[i][3])
                 break
@@ -271,7 +264,6 @@ class GameState():
         piecePinned = False
         for i in range(len(self.pins) - 1, -1, -1):
             if self.pins[i][0] == r and self.pins[i][1] == c:
-                print("I AM A KNIGHT BEING PINNED")
                 piecePinned = True
                 self.pins.remove(self.pins[i])
                 break
@@ -292,7 +284,6 @@ class GameState():
         pinDirection = ()
         for i in range(len(self.pins) - 1, -1, -1):
             if self.pins[i][0] == r and self.pins[i][1] == c:
-                print("I AM A ROOK BEING PINNED")
                 piecePinned = True
                 pinDirection = (self.pins[i][2], self.pins[i][3])
                 if self.board[r][c][1] != 'Q': # Can't remove queen from pin on rook, remove it on bishop
@@ -408,7 +399,7 @@ class GameState():
     def checkForPinsAndChecks(self):
         pins = [] # Store location of allied pinned piece and the direction of the pinned from
         checks = [] # Store where enemy is checking from
-        inCheck = False # DELETE
+        inCheck = False
         if self.whiteToMove:
             startRow = self.whiteKingLocation[0]
             startCol = self.whiteKingLocation[1]
@@ -543,8 +534,11 @@ class Move():
     def getChessNotation(self):
         notation = None
         capture = "x" if self.pieceCaptured != "--" else ""
+
         if self.pieceMoved[1] == "P":  # file of pawn + x + end or end
             notation = (self.colsToFiles[self.startCol] + capture + self.getRankFile(self.endRow,self.endCol)) if capture else self.getRankFile(self.endRow, self.endCol)
+            if self.pawnPromotion:
+                notation = (self.colsToFiles[self.endCol] + self.rowsToRanks[self.endRow] + promotedPiece)
         elif self.pieceMoved[1] == "N" or self.pieceMoved[1] == "K" or self.pieceMoved[1] == "Q" or self.pieceMoved[1] == "B" or self.pieceMoved[1] == "R": # Piece + x or "" + end
             notation = self.pieceMoved[1] + capture + self.getRankFile(self.endRow, self.endCol)
         return notation
