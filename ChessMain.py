@@ -77,6 +77,7 @@ def main():
                     gs.undoMove()
                     moveMade = True # To recheck the validMoves can just hard code it but its easier
                     animate = False
+                    gameOver = False
                 if e.key == p.K_r: # Reset the board when R is press
                     gs = ChessEngine.GameState()
                     validMoves = gs.getValidMoves()
@@ -84,10 +85,14 @@ def main():
                     playerClicks = []
                     moveMade = False
                     animate = False
+                    gameOver = False
 
         # AI move finder
         if not gameOver and not humanTurn:
-            AIMove = ChessAI.findRandomMove(validMoves)
+            AIMove = ChessAI.findBestMove(gs, validMoves)
+            # AIMove = ChessAI.findBestMoveMinMax(gs, validMoves)
+            if AIMove is None:
+                AIMove = ChessAI.findRandomMove(validMoves)
             gs.makeMove(AIMove)
             moveMade = True
             animate = True
@@ -143,8 +148,23 @@ def highlightSquares(screen, gs, validMoves, squareSelected):
                 if move.startRow == r and move.startCol == c:
                     screen.blit(s, (move.endCol*squareSize, move.endRow*squareSize))
 
+    if gs.inCheck:
+        s = p.Surface((squareSize, squareSize))
+        s.set_alpha(150)  # Slightly more opaque for emphasis
+        s.fill(p.Color("red"))  # Highlight color for the king in check
 
+        # Highlight the king in check
+        kingLocation = gs.whiteKingLocation if gs.whiteToMove else gs.blackKingLocation
+        kingSquare = p.Rect(kingLocation[1] * squareSize, kingLocation[0] * squareSize, squareSize, squareSize)
+        screen.blit(s, kingSquare)
 
+        # Highlight the attacker
+        check = gs.checks[0]
+        checkRow = check[0]
+        checkCol = check[1]
+
+        attackerSquare = p.Rect(checkCol * squareSize, checkRow * squareSize, squareSize, squareSize)
+        screen.blit(s, attackerSquare)
 
 # Responsible for all the graphics within a current game state
 def drawGameState(screen, gs, validMoves, squareSelected):
@@ -182,11 +202,14 @@ def animateMove(move, screen, board, clock):
         drawPieces(screen, board)
         # Erase the piece moved from it's ending square
         color = colors[(move.endRow + move.endCol) % 2]
-        endSquare = p.Rect(move.endCol*squareSize, move.endRow*squareSize , squareSize, squareSize)
+        endSquare = p.Rect(move.endCol*squareSize, move.endRow*squareSize, squareSize, squareSize)
         p.draw.rect(screen, color, endSquare)
 
         # Draw captured piece onto the rectangle
-        if move.pieceCaptured != '--':
+        if move.enPassant:
+            rowAdd = 1 if move.pieceMoved == 'wP' else -1
+            screen.blit(images[move.pieceCaptured], p.Rect(move.endCol*squareSize, (move.endRow + rowAdd)*squareSize, squareSize, squareSize))
+        elif move.pieceCaptured != '--':
             screen.blit(images[move.pieceCaptured], endSquare)
         # Draw moving piece for each frame
         screen.blit(images[move.pieceMoved], p.Rect(c*squareSize, r*squareSize , squareSize, squareSize))

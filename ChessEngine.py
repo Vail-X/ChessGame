@@ -90,7 +90,7 @@ class GameState():
 
         # Update castling rights when a king or rook moves
         self.updateCastleRights(move)
-        print(move.getChessNotation())
+        # print(move.getChessNotation())
 
      # Undo last move
     def undoMove(self):
@@ -134,8 +134,8 @@ class GameState():
                     self.board[move.endRow][move.endCol - 2] = self.board[move.endRow][move.endCol + 1]  # Moves rook
                     self.board[move.endRow][move.endCol + 1] = '--'  # Erase old rook
 
-        self.checkmate = False
-        self.stalemate = False
+            self.checkmate = False
+            self.stalemate = False
 
     # Get all valid moves considering checks
     def getValidMoves(self):
