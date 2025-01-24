@@ -38,8 +38,8 @@ def main():
     squareSelected = () # Keep track of last click (tuple: (row, col))
     playerClicks = [] # Keep track of player clicks (two tuples: [(6, 4), (4,4)])
     gameOver = False
-    playerOne = True # If True then Human is playing white otherwise it is AI
-    playerTwo = True # Same but for Black
+    playerOne = False # If True then Human is playing white otherwise it is AI
+    playerTwo = False  # Same but for Black
 
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
@@ -74,7 +74,10 @@ def main():
             # Key Handlers
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z and p.key.get_mods() & p.KMOD_CTRL: # Ctrl + Z
-                    gs.undoMove()
+                    if not playerOne or not playerTwo:
+                        gs.undoMove()
+                        gs.undoMove()
+                    else: gs.undoMove()
                     moveMade = True # To recheck the validMoves can just hard code it but its easier
                     animate = False
                     gameOver = False
