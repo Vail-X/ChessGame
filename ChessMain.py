@@ -38,8 +38,8 @@ def main():
     squareSelected = () # Keep track of last click (tuple: (row, col))
     playerClicks = [] # Keep track of player clicks (two tuples: [(6, 4), (4,4)])
     gameOver = False
-    playerOne = False # If True then Human is playing white otherwise it is AI
-    playerTwo = False # Same but for Black
+    playerOne = True # If True then Human is playing white otherwise it is AI
+    playerTwo = True # Same but for Black
 
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
@@ -159,12 +159,11 @@ def highlightSquares(screen, gs, validMoves, squareSelected):
         screen.blit(s, kingSquare)
 
         # Highlight the attacker
-        check = gs.checks[0]
-        checkRow = check[0]
-        checkCol = check[1]
-
-        attackerSquare = p.Rect(checkCol * squareSize, checkRow * squareSize, squareSize, squareSize)
-        screen.blit(s, attackerSquare)
+        for check in gs.checks:
+            checkRow = check[0]
+            checkCol = check[1]
+            attackerSquare = p.Rect(checkCol * squareSize, checkRow * squareSize, squareSize, squareSize)
+            screen.blit(s, attackerSquare)
 
 # Responsible for all the graphics within a current game state
 def drawGameState(screen, gs, validMoves, squareSelected):

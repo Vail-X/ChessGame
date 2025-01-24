@@ -57,7 +57,6 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
     if depth == 0:
         return scoreMaterial(gs.board)
 
-
 def scoreBoard(gs):
     score = 0
     for row in gs.board:

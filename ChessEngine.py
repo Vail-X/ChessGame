@@ -3,6 +3,7 @@ Responsible for storing all the information about the current state of the chess
 Responsible for determining the valid moves  at the current state of the chess game.
 Keep a move log.
 """
+from subprocess import check_call
 
 import numpy as np
 
@@ -91,6 +92,7 @@ class GameState():
         # Update castling rights when a king or rook moves
         self.updateCastleRights(move)
         # print(move.getChessNotation())
+        self.checks = [] # Reset check
 
      # Undo last move
     def undoMove(self):
@@ -172,7 +174,7 @@ class GameState():
                     if moves[i].pieceMoved[1] != 'K': # Not King
                         if not (moves[i].endRow, moves[i].endCol) in validSquares: # Move don't block check or capture piece
                             moves.remove(moves[i])
-            else: # More than 1 check
+            else: # Double Check
                 self.getKingMoves(kingRow, kingCol, moves)
         else:
             moves = self.getAllPossibleMoves()
@@ -398,7 +400,6 @@ class GameState():
 
     def checkForPinsAndChecks(self):
         pins = [] # Store location of allied pinned piece and the direction of the pinned from
-        checks = [] # Store where enemy is checking from
         inCheck = False
         if self.whiteToMove:
             startRow = self.whiteKingLocation[0]
@@ -434,9 +435,9 @@ class GameState():
                                 (pType == 'Q') or (i == 1 and pType == 'K')):
                             if possiblePin == (): # No piece blocking
                                 inCheck = True
-                                checks.append((endRow, endCol, d[0], d[1]))
+                                self.checks.append((endRow, endCol, d[0], d[1])) if (endRow, endCol, d[0], d[1]) not in self.checks else None
                                 break
-                            else: # An ally is blocking so pin
+                            else: # Ally is blocking so pin
                                 pins.append(possiblePin)
                                 break
                         else: # Enemy no applying check or pin
@@ -452,9 +453,9 @@ class GameState():
                 endPiece = self.board[endRow][endCol]
                 if endPiece[0] == self.enemyColor and endPiece[1] == 'N': #enemy knight attack king
                     inCheck = True
-                    checks.append((endRow, endCol, m[0], m[1]))
-
-        return inCheck, pins, checks
+                    self.checks.append((endRow, endCol, m[0], m[1])) if (endRow, endCol, m[0], m[1]) not in self.checks else None
+        # Uses self.checks because we don't want to reset the checks everytime this method is called, only reset check when a move is made
+        return inCheck, pins, self.checks
 
  # Update castle rights given the move
     def updateCastleRights(self, move):
