@@ -3,7 +3,7 @@ import random
 pieceScore = {"P": 1, "N": 3, "B": 3, "R": 5, "Q": 10, "K": 0}
 checkmate = 1000
 stalemate = 0
-maxDepth = 3
+maxDepth = 1
 
 
 def findRandomMove(validMoves):
@@ -11,10 +11,13 @@ def findRandomMove(validMoves):
 
 # Helper method to make the first recursive call
 def findBestMove(gs, validMoves):
-    global nextMove
+    global nextMove, counter
     nextMove = None
     # findMoveMinMax(gs, validMoves, maxDepth, gs.whiteToMove)
+    counter = 0
     findMoveNegaMax(gs, validMoves, maxDepth, 1 if gs.whiteToMove else -1)
+    # findMoveNegaMaxAplhaBeta(gs, validMoves, maxDepth, -checkmate, checkmate,  1 if gs.whiteToMove else -1)
+    print(counter)
     return nextMove
 
 def findMoveMinMax(gs, validMoves, depth, whiteToMove):
@@ -49,7 +52,8 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
 
 # Same as MinMax but only 1 for loop
 def findMoveNegaMax(gs, validMoves, depth, turnMultipler):
-    global nextMove
+    global nextMove, counter
+    counter += 1
     if depth == 0:
         return turnMultipler * scoreBoard(gs)
 
@@ -57,12 +61,36 @@ def findMoveNegaMax(gs, validMoves, depth, turnMultipler):
     for move in validMoves:
         gs.makeMove(move)
         nextMoves = gs.getValidMoves()
-        score = -findMoveNegaMax(gs, nextMoves, depth - 1, -turnMultipler)
+        score = -findMoveNegaMax(gs, nextMoves, depth - 1, -turnMultipler) # Opp best score is worse score for us so we put - to negate
         if score > maxScore:
             maxScore = score
             if depth == maxDepth:
                 nextMove = move
         gs.undoMove()
+    return maxScore
+
+# Alpha is current max so we start at lowest possible score, Beta is current min so we start at the highest score possible
+def findMoveNegaMaxAplhaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
+    global nextMove, counter
+    counter += 1
+    if depth == 0:
+        return turnMultipler * scoreBoard(gs)
+
+    # Move Ordering - Implement Later
+    maxScore = -checkmate
+    for move in validMoves:
+        gs.makeMove(move)
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMaxAplhaBeta(gs, nextMoves, depth - 1, -beta, -alpha, -turnMultipler) # Opp best score is worse score for us so we put - to negate
+        if score > maxScore:
+            maxScore = score
+            if depth == maxDepth:
+                nextMove = move
+        gs.undoMove()
+        if maxScore > alpha: #Pruning happens
+            alpha = maxScore
+        if alpha >= beta:
+            break
     return maxScore
 
 

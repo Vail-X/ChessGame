@@ -351,12 +351,11 @@ class GameState():
             self.getQueenSideCastleMoves(r, c, moves)
 
     def getKingSideCastleMoves(self, r, c, moves):
-        if self.board[r][c+1] == '--' and self.board[r][c+2] == '--':
-            if not self.squareUnderAttack(r, c+1) and not self.squareUnderAttack(r, c+2):
+        if self.board[r][c+1] == '--' and self.board[r][c+2] == '--' and not self.squareUnderAttack(r, c+1) and not self.squareUnderAttack(r, c+2):
                 moves.append(Move((r, c), (r, c+2), self.board, castleMove=True))
+
     def getQueenSideCastleMoves(self, r, c, moves):
-        if self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--':
-            if not self.squareUnderAttack(r, c-1) and not self.squareUnderAttack(r, c-2):
+        if self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--' and not self.squareUnderAttack(r, c-1) and not self.squareUnderAttack(r, c-2):
                 moves.append(Move((r, c), (r, c-2), self.board, castleMove=True))
 
     #  Returns if square under attack
@@ -476,6 +475,7 @@ class GameState():
             elif move.startCol == 7: # Right rook
                 self.castlingbKs = False
 
+        # If rook is captured
         if move.pieceCaptured == 'wR':
             if move.endRow == 7:
                 if move.endCol == 0:
