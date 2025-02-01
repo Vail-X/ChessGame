@@ -28,7 +28,7 @@ def main():
     screen = p.display.set_mode((boardWidth + moveLogPanelWidth, boardHeight))
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
-    moveLogFont = p.font.SysFont("Arial", 12, False, False)
+    moveLogFont = p.font.SysFont("Arial", 14, False, False)
 
     gs = ChessEngine.GameState()
     validMoves = gs.getValidMoves()
@@ -193,22 +193,30 @@ def drawPieces(screen, board):
 def drawMoveLog(screen, gs, font):
     moveLogRect = p.Rect(boardWidth, 0, moveLogPanelWidth, moveLogPanelHeight)
     p.draw.rect(screen, p.Color("Black"), moveLogRect)
-    moveLog = gs.moveLog if gs.moveLog else None
+    moveLog = gs.moveLog
     moveTexts = []
 
     for i in range(0, len(moveLog), 2):
-        moveString = i + 1
+        moveString = str(i//2 + 1) + ". " + moveLog[i].getChessNotation() + " "
+        if i + 1 < len(moveLog): # Make sure black made a move
+            moveString += moveLog[i+1].getChessNotation()
+        moveTexts.append(moveString)
 
+
+    movesPerRow = 3
     padding = 5
     lineSpacing = 2
     textY = padding
 
-    for i in range(len(moveLog)):
-        text = moveTexts[i].getChessNotation()
-        textObject = font.render(font, False, p.Color("White"))
+    for i in range(0, len(moveTexts), movesPerRow):
+        text = ""
+        for j in range(movesPerRow):
+            if i + j < len(moveTexts):
+                text += moveTexts[i+j] + "  "
+        textObject = font.render(text, True, p.Color("White"))
         textLocation = moveLogRect.move(padding, textY)
         screen.blit(textObject, textLocation)
-        textY += textObject.getHeight() + lineSpacing
+        textY += textObject.get_height() + lineSpacing
 
 # Animating a move
 def animateMove(move, screen, board, clock):

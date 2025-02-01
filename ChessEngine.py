@@ -514,16 +514,14 @@ class Move():
         self.endCol = endSquare[1]
         self.pieceMoved = board[self.startRow][self.startCol] # Select the piece moved/first click
         self.pieceCaptured = board[self.endRow][self.endCol] # Select the target place/second click can be "--"
-        # Pawn Promotion Logic
+
         self.pawnPromotion = (self.pieceMoved == 'wP' and self.endRow == 0) or (self.pieceMoved == 'bP' and self.endRow == 7)
-        # En Passant Move Logic
+        self.castleMove = castleMove
         self.enPassant = enPassant
         if enPassant:
             self.pieceCaptured = 'bP' if self.pieceMoved == 'wP' else 'wP' # Store information of pieceCaptured to be covered later since previously we store it by end.Row and end.Col which is '--'
 
-        # Castle Move Logic
-        self.castleMove = castleMove
-
+        self.isCapture = self.pieceCaptured != "--"
         self.moveID = self.startRow * 1000 + self.startCol * 100 + self.endRow * 10 + self.endCol
 
     # Overriding the equals method, to make a Move instance equal to each other if the ID is same
@@ -540,9 +538,22 @@ class Move():
             notation = (self.colsToFiles[self.startCol] + capture + self.getRankFile(self.endRow,self.endCol)) if capture else self.getRankFile(self.endRow, self.endCol)
             if self.pawnPromotion:
                 notation = (self.colsToFiles[self.endCol] + self.rowsToRanks[self.endRow] + promotedPiece)
-        elif self.pieceMoved[1] == "N" or self.pieceMoved[1] == "K" or self.pieceMoved[1] == "Q" or self.pieceMoved[1] == "B" or self.pieceMoved[1] == "R": # Piece + x or "" + end
+        else:
             notation = self.pieceMoved[1] + capture + self.getRankFile(self.endRow, self.endCol)
         return notation
 
     def getRankFile(self, r, c):
         return self.colsToFiles[c] + self.rowsToRanks[r]
+
+    # Overiding the str() function
+    def __str__(self):
+        pass
+        # Castle Move
+        # if self.castleMove:
+        #     return "O-O" if self.endCol == 6 else "O-O-O"
+        #
+        # endSquare = self.getRankFile(self.endRow, self.endCol)
+        # # Pawn Moves
+        # if self.pieceMoved[1] == "P":
+        #     return self.colsToFiles[self.startCol] + "x" + endSquare if self.isCapture else endSquare
+
