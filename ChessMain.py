@@ -128,7 +128,7 @@ def main():
 
         drawGameState(screen, gs, validMoves, squareSelected, moveLogFont)
 
-        if checkmate or gs.stalemate:
+        if gs.checkmate or gs.stalemate:
             gameOver = True
             drawEndGameText(screen, "Stalemate" if gs.stalemate else "Black Wins" if gs.whiteToMove else "White Wins")
 

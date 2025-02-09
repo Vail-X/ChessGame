@@ -60,7 +60,7 @@ piecePositionScores = {"wP": whitePawnScores, "bP": blackPawnScores, "N": knight
 
 checkmate = 1000
 stalemate = 0
-maxDepth = 4
+maxDepth = 3
 
 def findRandomMove(validMoves):
     return validMoves[random.randint(0, len(validMoves)-1)]

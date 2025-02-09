@@ -608,8 +608,6 @@ class Move():
         moveString = self.pieceMoved[1]
         if self.isCapture:
             moveString += 'x'
-        if checkmate:
-            moveString += '#'
         return moveString + endSquare
 
 
