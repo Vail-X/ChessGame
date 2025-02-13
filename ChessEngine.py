@@ -367,10 +367,19 @@ class GameState():
     def getKingMoves(self, r, c, moves):
         rowMoves = (-1, -1, -1, 0, 0, 1, 1, 1)
         colMoves = (-1, 0, 1, -1, 1, -1, 0, 1)
+        restrictedDirs = set()
+        for check in self.checks:
+            checkDirRow, checkDirCol = check[2], check[3]
+            checkingPiece = self.board[check[0]][check[1]]
+            if checkingPiece[1] != 'P':
+                restrictedDirs.add((-checkDirRow, -checkDirCol))  # Opposite direction of check
+
         for i in range(8):
             endRow = r + rowMoves[i]
             endCol = c + colMoves[i]
             if 0 <= endRow < 8 and 0 <= endCol < 8:  # Check if the move is within the board bounds
+                if (rowMoves[i], colMoves[i]) in restrictedDirs:
+                    continue
                 endPiece = self.board[endRow][endCol]
                 if endPiece[0] != self.allyColor:  # Not an ally piece (empty or enemy piece)
                     if not self.squareUnderAttack(endRow, endCol):
