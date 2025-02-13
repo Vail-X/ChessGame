@@ -142,7 +142,7 @@ def findMoveNegaMaxAplhaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
             maxScore = score
             if depth == maxDepth:
                 nextMove = move
-                print(move, score)
+                print(move,score)
         gs.undoMove()
         if maxScore > alpha: #Pruning happens
             alpha = maxScore

@@ -42,7 +42,7 @@ def main():
     playerClicks = [] # Keep track of player clicks (two tuples: [(6, 4), (4,4)])
     gameOver = False
     playerOne = True # If True then Human is playing white otherwise it is AI
-    playerTwo = True  # Same but for Black
+    playerTwo = False  # Same but for Black
     AIThinking = False
     moveFinderProcess = None
     moveUndone = False
