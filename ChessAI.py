@@ -58,7 +58,7 @@ blackPawnScores = [[0, 0, 0, 0, 0, 0, 0, 0],
 
 piecePositionScores = {"wP": whitePawnScores, "bP": blackPawnScores, "N": knightScores, "B": bishopScores, "R": rookScores, "Q" : queenScores}
 
-checkmate = 1000
+checkmate = 10000
 stalemate = 0
 maxDepth = 3
 

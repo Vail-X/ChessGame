@@ -13,7 +13,7 @@ dimension = 8
 squareSize = boardHeight // dimension # 64
 maxFps = 15
 images = {}
-humanTurn = True
+humanTurn = None # Enables choosing promoted piece
 
 def loadImages():
     pieces = ["wP", "wB", "wN", "wR", "wQ", "wK", "bP", "bB", "bN", "bR", "bQ", "bK"]
